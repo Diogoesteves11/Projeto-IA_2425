@@ -1,12 +1,12 @@
 
 
-class veicule:
+class Veicule:
 
-    def __init__(self, veiculeType: str, maxCapacity: int, autonomy: float ,travelTime: float, averageConsumption: float):
+    def __init__(self, veiculeType: str, maxCapacity: float, autonomy: float ,travelTime: float, averageConsumption: float):
         self.veiculeType: str = veiculeType # veicule type
 
-        self.maxCapacity:int = maxCapacity # max capacity in kg. Static
-        self.currentLoad: int = 0 # current capacity occupied
+        self.maxCapacity:float = maxCapacity # max capacity in kg. Static
+        self.currentLoad:float = 0 # current capacity occupied
 
         self.autonomy: float = autonomy # autonomy in Km of the veicule, can be dynamic depending on factor (float: 0 < factor < 1)
         self.distanceCovered: float = 0.0 # distance covered by the veicule in the CURRENT TRAVEL: must be reseted after each travel 
