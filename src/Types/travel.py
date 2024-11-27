@@ -28,7 +28,7 @@ class Travel:
         if not self.veicule.updateVeicule(distanceCovered, self.factor):
             return False
         
-        travelTime = self.veicule.calculateTravelTime(distanceCovered, self.factor)
+        travelTime: float = self.veicule.calculateTravelTime(distanceCovered, self.factor)
 
         for supply in self.supplies:
             if not supply.updateSupply(travelTime):
