@@ -42,7 +42,7 @@ class Veicule:
         weightLoad: float = self.currentLoad / self.maxCapacity
         if weightLoad > 1:
             return False  # Exceeds max capacity
-        
+         
         # Calculate fuel consumption
         consumption: float = self.averageConsumption * (1 + weightLoad) * distanceCovered / factor # FACTOR RECEIVED SUPERIOR THEN 1 IS NICE CONDITIONS
         effectiveAutonomy = self.getAutonomy(factor)
