@@ -27,6 +27,6 @@ class Area:
     def getCriticalTime(self) -> float:
         return self.criticalTime
     
-    def updateCritivaltime(self, travelTime: float):
+    def updateCriticaltime(self, travelTime: float):
         self.criticalTime -= travelTime
 

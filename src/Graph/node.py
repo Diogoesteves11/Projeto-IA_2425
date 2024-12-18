@@ -6,5 +6,4 @@ class Node:
         self.id = id
         self.name = str(name)
         self.area = Area(name, needs, density, weather, region, criticalTime)
-
-    
+        
