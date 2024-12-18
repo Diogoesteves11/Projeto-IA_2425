@@ -17,11 +17,11 @@ class Veicule:
     
     def getVeiculeType(self) -> str:
         return self.veiculeType
-    
+     
     def getMaxCapacity(self) -> float:
         return self.maxCapacity
     
-    def getCurrentLoad(self) -> float:
+    def getCurrentLoad(self) -> float: 
         return self.currentLoad
     
     def getAutonomy(self, factor: float) -> float:
