@@ -1,1 +1,8 @@
+git/
+.vscode/
+idea/
+log/
+tmp/
+obj/
+.vscode/
 *.DS_Store
