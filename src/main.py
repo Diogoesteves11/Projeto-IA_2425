@@ -1,12 +1,18 @@
 from Graph.graph import Graph
+from Interface.aidmatrix import App
+
 
 def main():
     g = Graph()
-    
+
     g.createGraph()
 
     g.draw()
 
+    app = App()
 
-if __name__ == "__main__":
+    app.mainloop()
+
+
+if name == "main":
     main()

@@ -145,7 +145,6 @@ class Graph:
         )
         nx.draw_networkx_edges(g, pos, edge_color='gray', alpha=0.7, width=1.2)
 
-
         nx.draw_networkx_labels(g, pos, labels=node_labels, font_size=7, font_color='black', font_weight='bold')
 
         edge_labels = nx.get_edge_attributes(g, 'weight')
