@@ -6,3 +6,4 @@ tmp/
 obj/
 .vscode/
 *.DS_Store
+__pycache__/

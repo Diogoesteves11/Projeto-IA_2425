@@ -102,8 +102,10 @@ class Graph:
                 supply = Supply(supply_type, supply_name, supply_weight, supply_quantity, supply_shelf_life)
                 supplies.append(supply)
 
+
+            afected = random.choice([True,False])
             node_id = len(self.nodes)
-            node = Node(node_id, area, supplies)
+            node = Node(node_id, area, supplies, afected)
             self.nodes.append(node)
             self.graph[country] = []
 
@@ -114,13 +116,18 @@ class Graph:
             for adjacent in adjacents:
                 self.add_edge(country, adjacent)
 
-    def draw(self):
+    def draw(self, output_path='graph.png'):
         lista_v = self.nodes
         g = nx.Graph()
+        node_colors = []
 
         for nodo in lista_v:
             n = nodo.getName()
+            afected = getattr(nodo, 'afected', False) 
             g.add_node(n)
+
+            node_colors.append('red' if afected else 'lightblue')  
+
             for adjacente, peso in self.graph[n]:
                 if peso == 10000000:
                     peso = -1
@@ -129,7 +136,9 @@ class Graph:
         plt.figure(figsize=(16, 12))
         pos = nx.spring_layout(g, seed=42, k=2, weight='weight') 
 
-        nx.draw_networkx_nodes(g, pos, node_size=300, node_color='lightblue', edgecolors='black')
+        nx.draw_networkx_nodes(
+            g, pos, node_size=300, node_color=node_colors, edgecolors='black'
+        )
         nx.draw_networkx_edges(g, pos, edge_color='gray', alpha=0.7, width=1.2)
 
         nx.draw_networkx_labels(g, pos, font_size=7, font_color='black', font_weight='bold')
@@ -140,4 +149,6 @@ class Graph:
         plt.title("Grafo", fontsize=15)
         plt.axis('off')
         plt.tight_layout()
-        plt.show()
+
+        plt.savefig(output_path, format='png')
+        plt.close()
