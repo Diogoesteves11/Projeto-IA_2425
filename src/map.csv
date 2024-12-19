@@ -1,0 +1,60 @@
+Country,Latitude,Longitude,Adjacentes,Population,Region,AccessibilityIndex
+Portugal,39.66216,-8.13535,"['Espanha','Marrocos']",10305564,Europe,5.5
+Espanha,39.32607,-4.83798,"['Itália','França','Portugal']",46719142,Europe,6.7
+França,46.60335,1.88833,"['Espanha','Inglaterra','Alemanha']",67391582,Europe,7.3
+Itália,42.63843,12.67430,"['Espanha','Ucrania','Alemanha']",60262770,Europe,7.1
+Alemanha,51.16382,10.44783,"['Itália','França','Ucrania','Eslovaquia']",83166711,Europe,8.5
+Marrocos,28.33477,-10.37134,"['Portugal','Ucrania','Irao','Congo','Cabo Verde']",37319103,Africa,6.3
+Inglaterra,52.53102,-1.26491,"['França','Alemanha','Eslovaquia','Dinamarca','Noruega']",55980000,Europe,7.5
+Ucrania,49.48720,31.27183,"['Alemanha','Itália','Marrocos','Irao','Russia','Eslovaquia']",41720585,Europe,7.8
+Eslovaquia,48.74115,19.45286,"['Russia','Alemanha','Suecia','Inglaterra']",5456362,Europe,6.2
+Dinamarca,55.67025,10.33333,"['Alemanha','Inglaterra','Suecia','Noruega']",5822763,Europe,6.5
+Noruega,64.57315,11.52804,"['Inglaterra','Dinamarca','Suecia']",5367580,Europe,6.0
+Suecia,59.67497,14.52086,"['Noruega','Dinamarca','Eslovaquia','Russia']",10327589,Europe,6.8
+Russia,64.68631,97.74531,"['Eslovaquia','Suecia','Ucrania','Paquistao','Vietname','Mongolia','India']",145805947,Asia,9.0
+Irao,32.64753,54.56435,"['Ucrania','Marrocos','Palestina','Egito']",87670264,Asia,7.7
+Congo,-2.98143,23.82226,"['Marrocos','Mali']",55010233,Africa,4.8
+EAU,24.00025,53.99948,"['Palestina','Mali','Egito']",9770529,Asia,5.2
+Cabo Verde,16.00006,-24.00839,"['Moçambique','Costa do Marfim','Marrocos']",531239,Africa,3.5
+Costa do Marfim,7.98974,-5.56795,"['Cabo Verde','Angola']",26378274,Africa,4.7
+Angola,-11.87758,17.56912,"['Liberia','Costa do Marfim','Moçambique','Africa do Sul']",35804000,Africa,5.2
+Africa do Sul,-28.81662,24.99164,"['Angola','Moçambique']",60262772,Africa,5.8
+Moçambique,-19.30223,34.91450,"['Angola','Cabo Verde','Madagascar','Africa do Sul']",33109276,Africa,5.6
+Madagascar,-18.92496,46.44164,"['Moçambique','Quenia']",30305131,Africa,4.9
+Liberia,5.74997,-9.36585,"['Mali','Angola','Madagascar']",5231767,Africa,4.2
+Mali,16.37004,-2.29002,"['EAU','Congo','Quenia','Palestina','Liberia','Madagascar']",22749650,Africa,5.0
+Palestina,31.46242,34.26272,"['Ucrania','Irao','EUA','Mali','Afeganistao']",5301015,Asia,5.3
+Egito,26.25405,29.26755,"['EUA','Irao']",104124000,Africa,7.0
+Quenia,1.44197,38.43140,"['Mali','Madagascar']",55317776,Africa,5.4
+Vietname,15.92667,107.96509,"['Russia','India','Tailandia']",98168829,Asia,6.8
+Afeganistao,33.76801,66.23851,"['Palestina','Mongolia','India']",41231000,Asia,6.1
+Tailandia,14.89719,100.83273,"['Vietname','Indonésia']",70335000,Asia,6.4
+Mongolia,46.82504,103.84997,"['Russia','India','Afeganistao']",3325142,Asia,5.8
+India,22.35111,78.66774,"['Nepal','Myanmar','China','Paquistao','Vietname','Afeganistao']",1407650000,Asia,9.5
+Paquistao,30.33084,71.24750,"['Myanmar','Russia','India']",24150000,Asia,6.2
+Myanmar,17.17505,95.99997,"['Paquistao','Nepal']",54223646,Asia,5.9
+Nepal,28.37805,83.99999,"['China','India','Myanmar']",30200000,Asia,5.7
+China,35.00007,104.99996,"['India','México','Nepal','Bangladesh','Japão','Indonésia','Mongolia','Coreia do Sul']",1412600000,Asia,9.8
+Indonésia,-2.48338,117.89029,"['China','Tailandia','Filipinas','Nova Zelândia']",277000000,Asia,8.3
+Filipinas,12.75035,122.73121,"['Indonésia','Coreia do Sul','Japão']",113000000,Asia,7.4
+Coreia do Sul,36.63839,127.69612,"['Filipinas','China','Japão','Austrália']",51329899,Asia,6.9
+Japão,36.57484,139.23942,"['China','Bangladesh','Austrália','Coreia do Sul','Filipinas']",125584838,Asia,8.1
+Bangladesh,24.47693,90.29344,"['China','Japão']",167000000,Asia,7.6
+Austrália,-24.77611,134.75500,"['Japão','Coreia do Sul','Papua Nova Guiné','Nova Zelândia']",26000000,Oceania,6.7
+Nova Zelândia,-41.50008,172.83441,"['Indonésia','Austrália','Fiji','Vanuatu']",5000000,Oceania,5.1
+Fiji,-18.12397,179.01227,"['Nova Zelândia','Vanuatu']",896000,Oceania,3.8
+Vanuatu,-16.52551,168.10692,"['Nova Zelândia','Fiji']",319000,Oceania,3.4
+Papua Nova Guiné,-5.68161,144.24891,"['Austrália','Nova Zelândia']",9000000,Oceania,4.9
+Républica Dominicana,19.09740,-70.30280,"['Haiti']",11000000,America,3.2
+México,19.43263,-99.13318,"['China','Honduras','Colômbia','Peru','EUA']",130262216,America,7.0
+Peru,-6.86997,-75.04585,"['Nicáragua','México','Honduras','Cuba']",34000000,America,6.2
+Nicáragua,12.60902,-85.29369,"['Guatemala','Peru','Colômbia']",6000000,America,4.8
+Guatemala,15.58555,-90.34576,"['Colômbia','Nicáragua']",18300000,America,4.9
+Colômbia,4.09992,-72.90881,"['Guatemala','México','Argentina','Haiti','Cuba','Nicáragua']",50372424,America,6.8
+Honduras,15.25724,-86.07551,"['Peru','México','Argentina']",10000000,America,5.7
+Cuba,23.01313,-80.83287,"['Peru','Colômbia','EUA','Argentina','Brasil','Haiti']",11326616,America,6.0
+Haiti,19.14000,-72.35710,"['Colômbia','Cuba','Républica Dominicana']",11263000,America,4.6
+Brasil,-10.33333,-53.20000,"['Cuba','Argentina']",213993437,America,7.5
+Argentina,-34.99650,-64.96728,"['Colômbia','Brasil','Honduras','Cuba']",45195777,America,6.5
+EUA,39.78373,-100.44588,"['México','Cuba','Canada']",332915073,America,8.7
+Canada,61.06669,-107.99171,"['EUA']",38008005,America,5.5

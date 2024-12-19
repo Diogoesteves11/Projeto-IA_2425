@@ -1,0 +1,10 @@
+git/
+.vscode/
+idea/
+log/
+tmp/
+obj/
+.vscode/
+*.DS_Store
+__pycache__/
+*.png
