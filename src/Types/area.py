@@ -1,13 +1,13 @@
 from Types.supply import Supply
 
 class Area: 
-    def __init__(self,name: str, density: int, weather: float, access: float, region:str, criticalTime: float, longitude: float, latitude: float):
+    def __init__(self,name: str, population: int, weather: float, access: float, region:str, criticalTime: float, longitude: float, latitude: float):
         self.name: str = name
         self.longitude = longitude
         self.latitude = latitude
         self.region = str(region)
-        self.priority: float = (density * 0.8) + (weather * 0.2)
-        self.density: int = density
+        self.priority: float = (population * 0.4) + (weather * 0.6)
+        self.density: int = population
         self.access:float = access
         self.criticalTime: float = criticalTime
 
@@ -23,7 +23,7 @@ class Area:
     def getAreaPriorityIndex(self) -> float:
         return self.priority
     
-    def getAreaDensity(self) -> int:
+    def getAreaPopulation(self) -> int:
         return self.density
     
     def getAreaAccessIndex(self) -> float:
