@@ -1,3 +1,12 @@
+from Graph.graph import Graph
 
 def main():
-    print("Hello World\n")
+    g = Graph()
+    
+    g.createGraph()
+
+    g.draw()
+
+
+if __name__ == "__main__":
+    main()

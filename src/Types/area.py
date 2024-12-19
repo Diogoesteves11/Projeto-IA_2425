@@ -1,22 +1,27 @@
-from supply import Supply
+from Types.supply import Supply
 
 class Area: 
-    def __init__(self,name: str, needs: {Supply}, density: int, weather: float, region: float, criticalTime: float):
+    def __init__(self,name: str, density: int, weather: float, access: float, region:str, criticalTime: float, longitude: float, latitude: float):
         self.name: str = name
-        self.priority: float = (density * 0.8) + (weather * 0.05) + (region * 0.15)
-        self.needs:{Supply} = needs
+        self.longitude = longitude
+        self.latitude = latitude
+        self.region = str(region)
+        self.priority: float = (density * 0.8) + (weather * 0.2)
         self.density: int = density
-        self.access:float = (weather * 0.5) + (region * 0.4) + (density * 0.1)
+        self.access:float = access
         self.criticalTime: float = criticalTime
 
     def getAreaName(self) -> str:
         return self.name
+    
+    def getLongitude(self) -> float:
+        return self.longitude
+    
+    def getLatitude(self) -> float:
+        return self.latitude
 
     def getAreaPriorityIndex(self) -> float:
         return self.priority
-    
-    def getAreaNeeds(self) -> {Supply}: 
-        return self.needs
     
     def getAreaDensity(self) -> int:
         return self.density
@@ -27,6 +32,6 @@ class Area:
     def getCriticalTime(self) -> float:
         return self.criticalTime
     
-    def updateCritivaltime(self, travelTime: float):
+    def updateCriticaltime(self, travelTime: float):
         self.criticalTime -= travelTime
 

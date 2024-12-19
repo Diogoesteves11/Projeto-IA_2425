@@ -2,9 +2,31 @@ from Types.supply import Supply
 from Types.area import Area
 
 class Node: 
-    def __init__(self, name: str, needs: {Supply}, density: int, weather: float, region: float, criticalTime: float, id = -1):
+    def __init__(self, id, area: Area, needs):
         self.id = id
-        self.name = str(name)
-        self.area = Area(name, needs, density, weather, region, criticalTime)
-
+        self.name = str(area.getAreaName())
+        self.area = area
+        self.needs = needs
     
+    def setId(self, id):
+        self.id = id
+
+    def getId(self):
+        return self.id
+    
+    def getArea(self):
+        return self.area
+    
+    def getNeeds(self):
+        return self.needs
+
+    def getName(self):
+        return self.name
+    
+    def getLatitude(self):
+        return self.area.getLatitude()
+    
+    def getLongitude(self):
+        return self.area.getLongitude()
+
+        
