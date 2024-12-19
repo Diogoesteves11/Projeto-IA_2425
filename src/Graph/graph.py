@@ -15,6 +15,8 @@ import random
 
 from Types.supply import Supply
 
+from adjustText import adjust_text # type: ignore
+
 class Graph:
     def __init__(self, directed= False):
         self.nodes = []
@@ -38,12 +40,12 @@ class Graph:
 
         if n1 is None:
             print(f"Erro: nó {node1} não encontrado!")
-            return  # Ou crie o nó se necessário
+            return  
 
         if n2 is None:
             print(f"Erro: nó {node2} não encontrado!")
-            return  # Ou crie o nó se necessário
-
+            return  
+        
         if n1 not in self.nodes:
             n1_id = len(self.nodes)
             n1 = Node(n1_id, n1.getArea(), n1.getNeeds())
@@ -57,12 +59,11 @@ class Graph:
             self.graph[node2] = []
 
         if random.random() < 0.05:  # 5% de chance para peso infinito
-            weight = weight = 1000000000 # rep do infinito
+            weight = weight = 10000000 # rep do infinito
         else:
-            # Agora chamamos o método de instância corretamente
+
             weight = self.calculate_distance(n1.getLatitude(), n1.getLongitude(), n2.getLatitude(), n2.getLongitude())
 
-        # Adiciona a aresta ao grafo
         self.graph[node1].append((node2, weight))
 
 
@@ -114,22 +115,29 @@ class Graph:
                 self.add_edge(country, adjacent)
 
     def draw(self):
-
         lista_v = self.nodes
-        lista_a = []
         g = nx.Graph()
+
         for nodo in lista_v:
             n = nodo.getName()
             g.add_node(n)
-            for (adjacente, peso) in self.graph[n]:
-                lista = (n, adjacente)
+            for adjacente, peso in self.graph[n]:
+                if peso == 10000000:
+                    peso = -1
+                g.add_edge(n, adjacente, weight=round(peso, 2)) 
 
-                g.add_edge(n, adjacente, weight=peso)
+        plt.figure(figsize=(16, 12))
+        pos = nx.spring_layout(g, seed=42, k=2, weight='weight') 
 
-        pos = nx.spring_layout(g)
-        nx.draw_networkx(g, pos, with_labels=True, font_weight='bold')
-        labels = nx.get_edge_attributes(g, 'weight')
-        nx.draw_networkx_edge_labels(g, pos, edge_labels=labels)
+        nx.draw_networkx_nodes(g, pos, node_size=300, node_color='lightblue', edgecolors='black')
+        nx.draw_networkx_edges(g, pos, edge_color='gray', alpha=0.7, width=1.2)
 
-        plt.draw()
+        nx.draw_networkx_labels(g, pos, font_size=7, font_color='black', font_weight='bold')
+
+        edge_labels = nx.get_edge_attributes(g, 'weight')
+        nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5)
+
+        plt.title("Grafo", fontsize=15)
+        plt.axis('off')
+        plt.tight_layout()
         plt.show()
