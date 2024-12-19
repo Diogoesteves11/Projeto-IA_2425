@@ -33,4 +33,6 @@ class Node:
     def getAfected(self):
         return self.afected
 
+    def getHeuristic(self):
+        return self.area.getPriority()
         

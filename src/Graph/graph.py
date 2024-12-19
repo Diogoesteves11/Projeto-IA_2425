@@ -84,26 +84,27 @@ class Graph:
             population = row['Population']
             region = row['Region']
             accessibility = row['AccessibilityIndex']
+            criticalTime = random.randint(2000, 10080)
 
             weather = random.randint(1, 10)
-            criticalTime = random.randint(2000, 10080)
             area = Area(country, population, weather, accessibility, region, criticalTime, longitude, latitude)
 
             supplyTypeNum = random.randint(1, 4)
             supplies = []
-
-            for i in range(supplyTypeNum):
-                supply_type = random.choice(["Food", "Water", "Medicine", "Equipment"])
-                supply_name = f"{supply_type} {random.randint(1, 100)}"
-                supply_weight = random.randint(1, 100)
-                supply_quantity = random.randint(1, 100)
-                supply_shelf_life = random.choice([random.uniform(0, 10080), float('inf')])
-
-                supply = Supply(supply_type, supply_name, supply_weight, supply_quantity, supply_shelf_life)
-                supplies.append(supply)
-
-
             afected = random.choice([True,False])
+
+            if afected is True: 
+                for i in range(supplyTypeNum):
+                    supply_type = random.choice(["Food", "Water", "Medicine", "Equipment"])
+                    supply_name = f"{supply_type} {random.randint(1, 100)}"
+                    supply_weight = random.randint(1, 100)
+                    supply_quantity = random.randint(1, 100)
+                    supply_shelf_life = random.choice([random.uniform(0, 10080), float('inf')])
+
+                    supply = Supply(supply_type, supply_name, supply_weight, supply_quantity, supply_shelf_life)
+                    supplies.append(supply)
+
+
             node_id = len(self.nodes)
             node = Node(node_id, area, supplies, afected)
             self.nodes.append(node)
@@ -120,13 +121,16 @@ class Graph:
         lista_v = self.nodes
         g = nx.Graph()
         node_colors = []
+        node_labels = {}
 
         for nodo in lista_v:
             n = nodo.getName()
-            afected = getattr(nodo, 'afected', False) 
+            afected = getattr(nodo, 'afected', False)
+            heuristic = round(nodo.getHeuristic(), 1)  
             g.add_node(n)
 
             node_colors.append('red' if afected else 'lightblue')  
+            node_labels[n] = f"{n}\nH: {heuristic}"
 
             for adjacente, peso in self.graph[n]:
                 if peso == 10000000:
@@ -141,7 +145,8 @@ class Graph:
         )
         nx.draw_networkx_edges(g, pos, edge_color='gray', alpha=0.7, width=1.2)
 
-        nx.draw_networkx_labels(g, pos, font_size=7, font_color='black', font_weight='bold')
+
+        nx.draw_networkx_labels(g, pos, labels=node_labels, font_size=7, font_color='black', font_weight='bold')
 
         edge_labels = nx.get_edge_attributes(g, 'weight')
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5)
@@ -152,3 +157,5 @@ class Graph:
 
         plt.savefig(output_path, format='png')
         plt.close()
+
+

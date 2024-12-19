@@ -6,10 +6,16 @@ class Area:
         self.longitude = longitude
         self.latitude = latitude
         self.region = str(region)
-        self.priority: float = (population * 0.4) + (weather * 0.6)
         self.density: int = population
         self.access:float = access
-        self.criticalTime: float = criticalTime
+
+        critical_impact = 1 / criticalTime if criticalTime > 0 else 0  
+        self.priority: float = (
+            (criticalTime * 0.5) +      # Peso de 50% para criticalTime
+            ((population / 10**6) * 0.2) +  # Peso de 20% para população
+            (weather * 0.2) +           # Peso de 20% para clima
+            (access * 0.1)              # Peso de 10% para acesso
+        )
 
     def getAreaName(self) -> str:
         return self.name
@@ -34,4 +40,7 @@ class Area:
     
     def updateCriticaltime(self, travelTime: float):
         self.criticalTime -= travelTime
+
+    def getPriority(self):
+        return self.priority
 
