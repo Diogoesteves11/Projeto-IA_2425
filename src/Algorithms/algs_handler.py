@@ -23,6 +23,8 @@ def finish_travel(end):
     area = end.getArea()
     area.priority = 0
         
+        
+#implementar search com funcao de supply veioculo depois da criacao dos destinos
 
         
     

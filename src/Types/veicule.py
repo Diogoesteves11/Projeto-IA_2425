@@ -89,3 +89,16 @@ class Vehicle:
         self.autonomy =  newAutonomy # depends on refuel
 
     
+    def supplyVehicule(self, queue):
+        for node in queue:
+            needs = Node.getNeeds(node)
+
+            for supply in needs:
+                available_space = self.maxCapacity - self.currentLoad
+                if available_space <= 0:
+                    break 
+
+                loadable_quantity = min(supply.quantity, available_space // supply.weight)
+
+                if loadable_quantity > 0:
+                    self.currentLoad += loadable_quantity * supply.weight
