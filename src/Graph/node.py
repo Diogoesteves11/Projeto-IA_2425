@@ -1,5 +1,6 @@
 from Types.supply import Supply
 from Types.area import Area
+from Types.veicule import Vehicle
 
 class Node: 
     def __init__(self, id, area: Area, needs, afected):
@@ -34,5 +35,10 @@ class Node:
         return self.afected
 
     def getHeuristic(self):
-        return self.area.getPriority()
+        return self.area.getPriority() + self.area.getAreaAccessIndex() + self.area.getweather()
+        
+    def updateCriticalTIme(self, traveltime):
+        self.area.updateCriticalTime(traveltime)
+        
+    def supply_node(self, vehicle):
         
