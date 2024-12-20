@@ -14,5 +14,5 @@ def main():
     app.mainloop()
 
 
-if name == "main":
+if __name__ == "__main__":
     main()
