@@ -35,10 +35,9 @@ class Node:
         return self.afected
 
     def getHeuristic(self):
-        return self.area.getPriority() + self.area.getAreaAccessIndex() + self.area.getweather()
+        return self.area.getPriority() + self.area.getAreaAccessIndex() + self.area.getWeather()
         
     def updateCriticalTIme(self, traveltime):
         self.area.updateCriticalTime(traveltime)
         
-    def supply_node(self, vehicle):
         

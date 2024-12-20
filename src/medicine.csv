@@ -1,11 +1,11 @@
-Medicamento,Peso por pack,Shelf life
+Medicamento,PesoPack,ShelfLife
 Paracetamol,10,15001
 Ibuprofeno,15,12304
 Amoxicilina,20,10432
-Soro Fisiológico,10,7031
+SoroFisiológico,10,7031
 Antialérgico,10,6043
-Carvão Ativado,20,9900
-Adrenalina (EpiPen),15,119304
-Bandagens Antissépticas,5,inf
-Pomada Antibiótica,30,123423
-Reidratante Oral,15,inf
+CarvãoAtivado,20,9900
+Adrenalina(EpiPen),15,119304
+BandagensAntissépticas,5,inf
+PomadaAntibiótica,30,123423
+ReidratanteOral,15,inf

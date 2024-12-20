@@ -1,4 +1,5 @@
 import math
+import os
 from queue import Queue
 import heapq
 
@@ -7,7 +8,7 @@ import matplotlib.pyplot as plt
 from networkx import reconstruct_path  # type: ignore # idem
 from pyvis.network import Network  # type: ignore
 
-from Graph.node import Node
+from .node import Node
 from Types.area import Area
 
 import pandas as pd # type: ignore
@@ -110,26 +111,30 @@ class Graph:
 
     def parse_supplies(self):
         supplies_data = {}
-        
+
+        # Lê os dados diretamente dos arquivos CSV na mesma pasta que o main.py
         food_df = pd.read_csv("food.csv")
         medicine_df = pd.read_csv("medicine.csv")
         equipment_df = pd.read_csv("equipment.csv")
-        
+
+        # Processa os dados do CSV "food.csv"
         supplies_data['Food'] = [
-            (row['Comida'], row['Peso por pack'], math.inf if row['Shelf life'] == 'inf' else row['Shelf life'])
+            (row['Comida'], row['PesoPack'], math.inf if row['ShelfLife'] == 'inf' else row['ShelfLife'])
             for _, row in food_df.iterrows()
         ]
-        
+
+        # Processa os dados do CSV "medicine.csv"
         supplies_data['Medicine'] = [
-            (row['Medicamento'], row['Peso por pack'], math.inf if row['Shelf life'] == 'inf' else row['Shelf life'])
+            (row['Medicamento'], row['PesoPack'], math.inf if row['ShelfLife'] == 'inf' else row['ShelfLife'])
             for _, row in medicine_df.iterrows()
         ]
 
+        # Processa os dados do CSV "equipment.csv"
         supplies_data['Equipment'] = [
-            (row['Equipamento'], row['Peso por pack'], math.inf)
+            (row['Equipamento'], row['PesoPack'], math.inf)
             for _, row in equipment_df.iterrows()
         ]
-        
+
         return supplies_data
     
     def createGraph(self, supplies_data):
@@ -254,7 +259,7 @@ class Graph:
             custoT = self.calculate_cost(path)
             return path, custoT
 
-        for adjacente, peso in self.graph[start]:
+        for adjacente, _ in self.graph[start]:
             if adjacente not in visited:
                 distance = self.calculate_distance(
                     self.nodes[start].area.latitude, self.nodes[start].area.longitude,
