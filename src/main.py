@@ -2,10 +2,13 @@ from Graph.graph import Graph
 from Interface.aidmatrix import App
 
 
+
 def main():
     g = Graph()
 
-    g.createGraph()
+    supplies_data = g.parse_supplies()
+    
+    g.createGraph(supplies_data)
 
     g.draw()
 
@@ -14,5 +17,5 @@ def main():
     app.mainloop()
 
 
-if name == "main":
+if __name__ == "__main__":
     main()
