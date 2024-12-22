@@ -248,15 +248,25 @@ class Graph:
                 node.updateCriticalTime(traveltime)
                 node.updatePriority()
 
-    #FUNÇAO SUPPLY DE VEICULO 
 
-    def procura_DFS(self, start, end, path, visited, vehicle):
+    def procura_DFS(self, start, end, path, visited, vehicle: Vehicle):
         path.append(start)
         visited.add(start)
 
+        minimum = 0
+        distance = 0
+        goalArea = self.get_node_by_name(end)
+
+        needs = goalArea.getNeeds()
+
+        for need in needs:
+            minimum += need.getSupplyWeightLoad()
+
         if start == end:
-            ## SUPLYY ZONA E SUBSTRAIR ASO VEICULO
+
             custoT = self.calculate_cost(path)
+            area = self.get_node_by_name(end)
+            area.supplyArea(vehicle, minimum, distance, goalArea.getName())
             return path, custoT
 
         for adjacente, _ in self.graph[start]:
@@ -270,9 +280,10 @@ class Graph:
 
                 self.update_grafo(time)
                 
-                success = vehicle.updatevehicle(distance)
+                area = self.get_node_by_name(adjacente)
+                success = area.supplyArea(vehicle, minimum, distance, goalArea.getName()) 
                 if not success:
-                    continue
+                    return None
 
                 resultado = self.procura_DFS(adjacente, end, path, visited, vehicle)
                 if resultado is not None:

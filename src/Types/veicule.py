@@ -54,7 +54,7 @@ class Vehicle:
         return self.travelTime
     
     
-    def updatevehicle(self, distanceCovered: float) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
+    def updatevehicle(self, distanceCovered: float, needs: [Supply]) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
         # Calculate load influence (weightLoad)
         weightLoad: float = self.currentLoad / self.maxCapacity
         if weightLoad > 1:
@@ -71,6 +71,13 @@ class Vehicle:
         # Update vehicle state
         self.autonomy -= consumption
         self.distanceCovered += distanceCovered
+
+        for supply in needs:
+            supplyWeight = supply.getSupplyWeightLoad()
+            if self.currentLoad >= supplyWeight:
+                self.currentLoad -= supplyWeight
+            else: 
+                return False
 
         return True
 
@@ -103,3 +110,4 @@ class Vehicle:
 
                 if loadable_quantity > 0:
                     self.currentLoad += loadable_quantity * supply.weight
+        

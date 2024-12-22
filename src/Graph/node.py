@@ -39,5 +39,32 @@ class Node:
         
     def updateCriticalTIme(self, traveltime):
         self.area.updateCriticalTime(traveltime)
+
+    def supplyArea(self, vehicle: Vehicle, minimumWeight, distance, mainAreaName):
+        loadAfterSupply = 0
+        needLoad = 0
+        vehicleLoad = vehicle.getCurrentLoad()
+        for need in self.needs:
+            needLoad += need.getSupplyWeightLoad()
+        
+        loadAfterSupply = vehicleLoad - needLoad
+
+        if self.name == mainAreaName: 
+            vehicle.updatevehicle(distance, self.needs)
+            self.needs = []
+            self.afected = False
+            return False          
+
+        if loadAfterSupply > 0 and loadAfterSupply > minimumWeight:
+            vehicle.updatevehicle(distance, self.needs)
+            self.needs = []
+            self.afected = False
+            return True 
+        
+        if loadAfterSupply < 0 or loadAfterSupply <= minimumWeight:
+            return True 
+
+        return False
+        
         
         
