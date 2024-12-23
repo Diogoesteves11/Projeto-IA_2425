@@ -3,9 +3,9 @@ import tkinter.messagebox
 import customtkinter
 from PIL import Image, ImageTk
 
-# Configurações de aparência
-customtkinter.set_appearance_mode("Dark")  # Modos: "System" (padrão), "Dark", "Light"
-customtkinter.set_default_color_theme("blue")  # Temas: "blue" (padrão), "green", "dark-blue"
+
+customtkinter.set_appearance_mode("Dark") 
+customtkinter.set_default_color_theme("blue")  
 
 class App(customtkinter.CTk):
     def __init__(self, graph=None):
@@ -13,10 +13,9 @@ class App(customtkinter.CTk):
 
         self.graph = graph  # Salva o objeto gráfico
         # Configurações da janela
-        self.title("CustomTkinter Complex Example")
-        self.geometry("1440x900")
+        self.title("AidMatrix PRO+")
+        self.geometry("1920x1080")
 
-        # Configuração do layout em grade
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=3)  # Ajustar peso para a coluna da imagem
         self.grid_rowconfigure(0, weight=0)
@@ -44,8 +43,8 @@ class App(customtkinter.CTk):
 
     def show_graph(self):
         root = customtkinter.CTk()
-        root.title("grafo.com")
-        root.geometry("1680x1050")
+        root.title("AidMatrix - Grafo")
+        root.geometry("1920x1080")
         img = customtkinter.CTkImage(light_image=Image.open("graph.png"),dark_image= Image.open("graph.png"), size=(1680,1050))
         my_label = customtkinter.CTkLabel(root, text="", image=img)
         my_label.pack(pady=10)
