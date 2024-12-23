@@ -194,6 +194,9 @@ class Graph:
             supplyTypeNum = random.randint(1, 4)
             supplies = []
             afected = random.choice([True,False])
+            refuel = False
+            if not afected:
+                refuel = random.choice([True,False])
 
             if afected is True: 
                 for i in range(supplyTypeNum):
@@ -208,8 +211,9 @@ class Graph:
                     supplies.append(supply)
 
 
+
             node_id = len(self.nodes)
-            node = Node(node_id, area, supplies, afected)
+            node = Node(node_id, area, supplies, afected, refuel)
             self.nodes.append(node)
             self.graph[country] = []
 
@@ -236,11 +240,14 @@ class Graph:
         for nodo in lista_v:
             n = nodo.getName()
             afected = nodo.getAffected()
+            refuel = nodo.getRefuel()
             heuristic = round(nodo.getHeuristic(), 1)  
             g.add_node(n)
 
             # Usar um dicionário para mapear o nó para sua cor
             color_map[n] = 'red' if afected else 'lightblue'  
+            if refuel is True:
+                color_map[n] = 'darkblue'
             node_labels[n] = f"{n}\nH: {heuristic}"
 
             # Iterar sobre os adjacentes de cada nodo
@@ -311,7 +318,8 @@ class Graph:
         if start == end:
             custoT = self.calculate_cost(path)
             area = self.get_node_by_name(end)
-            vehicle.updateVehicle(distance,needs, True)
+            refuel = area.getRefuel()
+            vehicle.updateVehicle(distance,needs, True, refuel)
             self.finish_travel(end)
             return path, custoT
 
@@ -324,8 +332,9 @@ class Graph:
                 )
                 time = vehicle.calculateTravelTime(distance)
 
+                refuel = self.get_node_by_name(adjacente).getRefuel()
                 self.update_grafo(time)
-                if vehicle.updateVehicle(distance,needs,False) is False:
+                if vehicle.updateVehicle(distance,needs,False, refuel) is False:
                     break
 
                 area = self.get_node_by_name(adjacente).getArea()
@@ -358,7 +367,8 @@ class Graph:
             if nodo_atual == end:
                 path_found = True
                 area = self.get_node_by_name(end)
-                vehicle.updateVehicle(distance,needs, True)
+                refuel = area.getRefuel()
+                vehicle.updateVehicle(distance,needs, True, refuel)
                 self.finish_travel(end)
             else: 
                 for (adjacente,peso) in self.graph[nodo_atual]:
@@ -371,6 +381,8 @@ class Graph:
                             self.get_node_by_name(adjacente).getLatitude(), self.get_node_by_name(adjacente).getLongitude()
                         )
                         time = vehicle.calculateTravelTime(distance)
+                        refuel = self.get_node_by_name(adjacente).getRefuel()
+                        self.update_grafo(time)
                         if vehicle.updateVehicle(distance,needs,False) is False:
                             break
                         self.update_grafo(time)
@@ -388,9 +400,9 @@ class Graph:
         return (path,custoT)
 
 
-    def getNeighbours(graph, nodo):
+    def getNeighbours(self, nodo):
         lista = []
-        for (adjacente, peso) in graph.graph[nodo]:
+        for (adjacente, peso) in self.graph[nodo]:
             lista.append((adjacente, peso))
         return lista
     
@@ -421,7 +433,8 @@ class Graph:
             if current_node == end:
                 path = self.reconstruct_path(visited, start, end)
                 area = self.get_node_by_name(end)
-                vehicle.updateVehicle(distance,needs, True)
+                refuel = area.getRefuel()
+                vehicle.updateVehicle(distance,needs, True, refuel)
                 self.finish_travel(end)
                 return path, current_cost
 
@@ -439,7 +452,9 @@ class Graph:
                         self.get_node_by_name(neighbor).getLatitude(), self.get_node_by_name(neighbor).getLongitude()
                     )
                     time = vehicle.calculateTravelTime(distance)
-                    if vehicle.updateVehicle(distance,needs,False) is False:
+                    refuel = self.get_node_by_name(neighbor).getRefuel()
+                    self.update_grafo(time)
+                    if vehicle.updateVehicle(distance,needs,False, refuel) is False:
                         break
                     self.update_grafo(time)
 
@@ -481,7 +496,8 @@ class Graph:
                 reconst_path.append(start)
                 reconst_path.reverse()
                 area = self.get_node_by_name(end)
-                vehicle.updateVehicle(distance,needs, True)
+                refuel = area.getRefuel()
+                vehicle.updateVehicle(distance,needs, True, refuel)
                 self.finish_travel(end)
                 return (reconst_path, self.calculate_cost(reconst_path))
 
@@ -494,7 +510,8 @@ class Graph:
                         self.get_node_by_name(m).getLatitude(), self.get_node_by_name(m).getLongitude()
                     )
                     time = vehicle.calculateTravelTime(distance)
-                    if vehicle.updateVehicle(distance,needs,False) is False:
+                    refuel = self.get_node_by_name(m).getRefuel()
+                    if vehicle.updateVehicle(distance,needs,False, refuel) is False:
                         break
                     self.update_grafo(time)
 
@@ -504,69 +521,60 @@ class Graph:
         return [], float('inf')
 
     def procura_aStar(self, start, end, vehicle: Vehicle):
-        open_list = {start}
-        closed_list = set([])
+        open_list = {start} 
+        closed_list = set() 
 
-        g = {}
-        g[start] = 0
+        g = {start: 0}
 
-        parents = {}
-        parents[start] = start
+        parents = {start: None}
 
-        minimum = 0
         distance = 0
         needs = self.get_node_by_name(end).getNeeds()
 
-        for need in needs:
-            minimum += need.getSupplyWeightLoad()
+        h_start = self.get_node_by_name(start).getHeuristic()
 
-        while len(open_list) > 0:
-            n = None
-
-            for v in open_list:
-                node = self.get_node_by_name(v)
-                if n is None or g[v] + node.getHeuristic() < g[n] + node.getHeuristic():
-                    n = v
-
-            if n is None:
-                print('Path does not exist!')
-                return None
+        while open_list:
+            n = min(open_list, key=lambda node: g[node] + self.get_node_by_name(node).getHeuristic())
 
             if n == end:
-                reconst_path = []
-                while parents[n] != n:
-                    reconst_path.append(n)
+                path = []
+                while n:
+                    path.append(n)
                     n = parents[n]
-                reconst_path.append(start)
-                reconst_path.reverse()
-                area = self.get_node_by_name(end)
-                vehicle.updateVehicle(distance,needs, True)
-                self.finish_travel(end)
-                return (reconst_path, self.calculate_cost(reconst_path))
+                path.reverse()
 
-            for (m, weight) in self.getNeighbours(n):
-                if m not in open_list and m not in closed_list and self.compatibleConection(n, m, vehicle) and weight != -1:
-                    open_list.add(m)
+                refuel = self.get_node_by_name(end).getRefuel()
+                vehicle.updateVehicle(distance, needs, True, refuel)
+                self.finish_travel(end)
+                return path, self.calculate_cost(path)
+
+            open_list.remove(n)
+            closed_list.add(n)
+
+            for m, weight in self.getNeighbours(n):
+                if not self.compatibleConection(n, m, vehicle) or weight == -1:
+                    continue
+
+                g_new = g[n] + weight
+
+                if m in closed_list and g_new >= g.get(m, float('inf')):
+                    continue
+
+                if m not in open_list or g_new < g.get(m, float('inf')):
+                    g[m] = g_new
                     parents[m] = n
-                    g[m] = g[n] + weight
+
                     distance = self.calculate_distance(
                         self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
                         self.get_node_by_name(m).getLatitude(), self.get_node_by_name(m).getLongitude()
                     )
                     time = vehicle.calculateTravelTime(distance)
-                    if vehicle.updateVehicle(distance,needs,False) is False:
-                        break
+                    refuel = self.get_node_by_name(m).getRefuel()
+                    if not vehicle.updateVehicle(distance, needs, False, refuel):
+                        continue  
+
                     self.update_grafo(time)
-                else:
-                    if g[m] > g[n] + weight:
-                        g[m] = g[n] + weight
-                        parents[m] = n
 
-                        if m in closed_list:
-                            closed_list.remove(m)
-                            open_list.add(m)
-
-            open_list.remove(n)
-            closed_list.add(n)
+                    open_list.add(m)
 
         return [], float('inf')

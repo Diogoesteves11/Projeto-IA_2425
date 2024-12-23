@@ -38,7 +38,8 @@ def search(g: Graph, base, vehicles):
             #path_aux, custo = g.procura_DFS(start, goal, path=[], visited=set(), vehicle=v)
             #path_aux, custo = g.procura_BFS(start, goal, vehicle=v)
             #path_aux, custo = g.procura_custo_uniforme(start, goal, vehicle=v)
-            path_aux, custo = g.greedy(start, goal, vehicle=v)
+            #path_aux, custo = g.greedy(start, goal, vehicle=v)
+            path_aux, custo = g.procura_aStar(start, goal, vehicle=v)
             print(path_aux)
             if path_aux:
                 destinos_por_veiculo[v] += 1
