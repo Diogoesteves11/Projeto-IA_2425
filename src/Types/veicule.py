@@ -10,6 +10,7 @@ class Vehicle:
         self.currentLoad: float = 0  # Current capacity occupied
 
         self.autonomy: float = autonomy  # Autonomy in Km
+        self.initialAutonomy = autonomy
         self.distanceCovered: float = 0.0  # Distance covered in the current travel
         self.averageConsumption: float = averageConsumption  # Average consumption in ideal conditions
 
@@ -63,7 +64,7 @@ class Vehicle:
         return self.travelTime
     
     
-    def updateVehicle(self, distanceCovered: float, needs, forSupply: bool) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
+    def updateVehicle(self, distanceCovered: float, needs, forSupply: bool, refuel) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
         # Calculate load influence (weightLoad)
         weightLoad: float = self.currentLoad / self.maxCapacity
         if weightLoad > 1:
@@ -72,6 +73,9 @@ class Vehicle:
         # Calculate fuel consumption
         consumption: float = self.averageConsumption * (1 + weightLoad) * distanceCovered  # FACTOR RECEIVED SUPERIOR THEN 1 IS NICE CONDITIONS
         effectiveAutonomy = self.getAutonomy()
+
+        if refuel is True: 
+            self.autonomy = self.initialAutonomy
 
         # Check if the vehicle can complete the travel
         if effectiveAutonomy < consumption:

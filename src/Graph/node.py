@@ -3,13 +3,17 @@ from Types.area import Area
 from Types.veicule import Vehicle
 
 class Node: 
-    def __init__(self, id, area: Area, needs, afected):
+    def __init__(self, id, area: Area, needs, afected, refuel):
         self.id = id
         self.name = str(area.getAreaName())
         self.area = area
         self.needs = needs
         self.afected = afected
-    
+        self.refuel = refuel
+
+    def getRefuel(self):
+        return self.refuel
+
     def setAffected(self, affected):
         self.afected = affected
 
