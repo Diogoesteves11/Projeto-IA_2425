@@ -10,6 +10,12 @@ class Node:
         self.needs = needs
         self.afected = afected
     
+    def setAffected(self, affected):
+        self.afected = affected
+
+    def getAffected(self):
+        return self.afected
+    
     def setId(self, id):
         self.id = id
 
@@ -37,8 +43,11 @@ class Node:
     def getHeuristic(self):
         return self.area.getPriority() + self.area.getAreaAccessIndex() + self.area.getWeather()
         
-    def updateCriticalTIme(self, traveltime):
-        self.area.updateCriticalTime(traveltime)
+    def updateCriticalTime(self, traveltime):
+        self.area.updateCriticaltime(traveltime)
+    
+    def updatePriority(self):
+        self.area.updatePriority()
 
     def supplyArea(self, vehicle: Vehicle, minimumWeight, distance, mainAreaName):
         loadAfterSupply = 0
@@ -50,13 +59,13 @@ class Node:
         loadAfterSupply = vehicleLoad - needLoad
 
         if self.name == mainAreaName: 
-            vehicle.updatevehicle(distance, self.needs)
+            vehicle.updateVehicle(distance, self.needs, True)
             self.needs = []
             self.afected = False
             return False          
 
         if loadAfterSupply > 0 and loadAfterSupply > minimumWeight:
-            vehicle.updatevehicle(distance, self.needs)
+            vehicle.updateVehicle(distance, self.needs, True)
             self.needs = []
             self.afected = False
             return True 

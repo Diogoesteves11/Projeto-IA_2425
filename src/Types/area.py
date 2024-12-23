@@ -9,6 +9,7 @@ class Area:
         self.population: int = population
         self.access:float = access
         self.weather = weather
+        self.criticalTime = criticalTime
         self.priority: float = ((10000/criticalTime) * 0.4) + ((population / 10**6) * 0.6 )
         
 
@@ -45,4 +46,7 @@ class Area:
 
     def getPriority(self):
         return self.priority
+    
+    def setPriority(self, priority):
+        self.priority = priority
 

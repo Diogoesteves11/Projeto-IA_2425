@@ -2,19 +2,24 @@ import csv
 from Graph.node import *
 
 class Vehicle:
+    def __init__(self, vehicleName: str, vehicleType: str, maxCapacity: float, autonomy: float, travelTime: float, averageConsumption: float):
+        self.vehicleName: str = vehicleName
+        self.vehicleType: str = vehicleType  # Vehicle type
 
-    def __init__(self, vehicleType: str, maxCapacity: float, autonomy: float ,travelTime: float, averageConsumption: float):
-        self.vehicleType: str = vehicleType # vehicle type
+        self.maxCapacity: float = maxCapacity  # Max capacity in kg
+        self.currentLoad: float = 0  # Current capacity occupied
 
-        self.maxCapacity:float = maxCapacity # max capacity in kg. Static
-        self.currentLoad:float = 0 # current capacity occupied
+        self.autonomy: float = autonomy  # Autonomy in Km
+        self.distanceCovered: float = 0.0  # Distance covered in the current travel
+        self.averageConsumption: float = averageConsumption  # Average consumption in ideal conditions
 
-        self.autonomy: float = autonomy # autonomy in Km of the vehicle, can be dynamic depending on factor (float: 0 < factor < 1)
-        self.distanceCovered: float = 0.0 # distance covered by the vehicle in the CURRENT TRAVEL: must be reseted after each travel 
-        self.averageConsumption: float = averageConsumption # average Consumption factor in ideal conditions
+        self.travelTime: float = travelTime  # Time per km in ideal conditions
 
-        self.travelTime: float = travelTime # min/km that the vehicle in ideal conditions
-        
+
+    def getName(self):
+        return self.vehicleName
+    
+    @staticmethod
     def parse_csv_to_vehicles():
         vehicles = {}
 
@@ -23,6 +28,7 @@ class Vehicle:
             for row in reader:
                 name = row['Name']
                 vehicles[name] = Vehicle(
+                    vehicleName=name,
                     vehicleType=row['Type'],
                     maxCapacity=float(row['MaxCapacity']),
                     autonomy=float(row['Autonomy']),
@@ -31,6 +37,9 @@ class Vehicle:
                 )
 
         return vehicles
+
+    def getvehicleName(self) -> str:
+        return self.vehicleName
 
     def getvehicleType(self) -> str:
         return self.vehicleType
@@ -54,7 +63,7 @@ class Vehicle:
         return self.travelTime
     
     
-    def updatevehicle(self, distanceCovered: float, needs: [Supply]) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
+    def updateVehicle(self, distanceCovered: float, needs, forSupply: bool) -> bool: # return false if autonomy reaches 0 of if the CurrentLoad exceeds the maxCapacity
         # Calculate load influence (weightLoad)
         weightLoad: float = self.currentLoad / self.maxCapacity
         if weightLoad > 1:
@@ -72,12 +81,13 @@ class Vehicle:
         self.autonomy -= consumption
         self.distanceCovered += distanceCovered
 
-        for supply in needs:
-            supplyWeight = supply.getSupplyWeightLoad()
-            if self.currentLoad >= supplyWeight:
-                self.currentLoad -= supplyWeight
-            else: 
-                return False
+        if forSupply:
+            for supply in needs:
+                supplyWeight = supply.getSupplyWeightLoad()
+                if self.currentLoad >= supplyWeight:
+                    self.currentLoad -= supplyWeight
+                else: 
+                    self.currentLoad = 0
 
         return True
 
@@ -97,9 +107,9 @@ class Vehicle:
         self.autonomy =  newAutonomy # depends on refuel
 
     
-    def supplyVehicule(self, queue):
+    def supplyVehicle(self, queue):
         for node in queue:
-            needs = Node.getNeeds(node)
+            needs = node.getNeeds()
 
             for supply in needs:
                 available_space = self.maxCapacity - self.currentLoad

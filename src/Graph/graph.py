@@ -2,7 +2,6 @@ import math
 import os
 from queue import Queue
 import heapq
-
 import networkx as nx  # type: ignore
 import matplotlib.pyplot as plt
 from networkx import reconstruct_path  # type: ignore # idem
@@ -10,12 +9,11 @@ from pyvis.network import Network  # type: ignore
 
 from .node import Node
 from Types.area import Area
-
+import Algorithms
 import pandas as pd # type: ignore
 import ast
 
 import random
-
 from Types.supply import Supply
 
 from adjustText import adjust_text # type: ignore
@@ -29,6 +27,21 @@ class Graph:
         self.graph = {}
         self.conections = {}
 
+    def getNodes(self):
+        return self.nodes
+    
+    def get_random_node(self):
+        nodes = self.getNodes()
+        
+        if not nodes:
+            return None 
+
+        random_node = random.choice(nodes)
+        while random_node.getAffected() is not False:
+            random_node = random.choice(nodes)
+        node = random_node.getName()
+        return node
+    
     def calculate_distance(self,lat1, lon1, lat2, lon2):
 
         R = 6371  # Radius of Earth in kilometers
@@ -93,7 +106,7 @@ class Graph:
             self.nodes.append(n2)
             self.graph[node2] = []
 
-        if random.random() < 0.05:  # 5% de chance para peso infinito
+        if random.random() < 0.01:  # 1% de chance para peso infinito
             weight = weight = -1 # rep do infinito
         else:
 
@@ -137,6 +150,32 @@ class Graph:
 
         return supplies_data
     
+    def get_connection_type(self, node1, node2):
+        connection = self.conections.get((node1, node2))
+        if connection:
+            return connection
+        else:
+            return f"Não há conexão entre {node1} e {node2}"
+    
+    def finish_travel(self, end):
+        node = self.get_node_by_name(end)
+        node.setAffected(False)
+        area = node.getArea()
+        area.setPriority(0)
+        print('Supplied: ' + end + '|| '+ str(node.getAffected()))
+
+    def compatibleConection(self, start, end, vehicle: Vehicle):
+        con = self.conections.get((start, end))
+        if con is None: 
+            return False
+
+        if (vehicle.getvehicleType() == 'aquatico' and con == 0) or \
+           (vehicle.getvehicleType() == 'terrestre' and con == 1): 
+            return False
+
+        return True
+        
+    
     def createGraph(self, supplies_data):
         df = pd.read_csv("map.csv")
 
@@ -162,7 +201,7 @@ class Graph:
                     supply_info = random.choice(supplies_data[supply_type])
                     supply_name = supply_info[0]
                     supply_weight = supply_info[1]
-                    supply_quantity = random.randint(30, 100)
+                    supply_quantity = random.randint(10, 30)
                     supply_shelf_life = supply_info[2]
 
                     supply = Supply(supply_type, supply_name, supply_weight, supply_quantity, supply_shelf_life)
@@ -192,14 +231,16 @@ class Graph:
         g = nx.Graph()
         node_colors = []
         node_labels = {}
+        color_map = {}  # Mapeamento de nós para suas cores
 
         for nodo in lista_v:
             n = nodo.getName()
-            afected = getattr(nodo, 'afected', False)
+            afected = nodo.getAffected()
             heuristic = round(nodo.getHeuristic(), 1)  
             g.add_node(n)
 
-            node_colors.append('red' if afected else 'lightblue')  
+            # Usar um dicionário para mapear o nó para sua cor
+            color_map[n] = 'red' if afected else 'lightblue'  
             node_labels[n] = f"{n}\nH: {heuristic}"
 
             # Iterar sobre os adjacentes de cada nodo
@@ -208,6 +249,9 @@ class Graph:
 
         plt.figure(figsize=(16, 12))
         pos = nx.spring_layout(g, seed=42, k=2, weight='weight') 
+
+        # Criar lista de cores de acordo com a ordem dos nós no layout
+        node_colors = [color_map[n] for n in g.nodes]
 
         nx.draw_networkx_nodes(
             g, pos, node_size=300, node_color=node_colors, edgecolors='black'
@@ -219,15 +263,14 @@ class Graph:
         edge_labels = {}
 
         for nodo in lista_v:
-          n = nodo.getName()
-          for adjacente, peso in self.graph[n]:
-              
-            connection_type = self.conections.get((n, adjacente), 'Unknown')
+            n = nodo.getName()
+            for adjacente, peso in self.graph[n]:
+                connection_type = self.conections.get((n, adjacente), 'Unknown')
 
-            if peso == -1:
-                edge_labels[(n, adjacente)] = f"{-1} ({connection_type})" 
-            else:
-                edge_labels[(n, adjacente)] = f"{round(peso, 2)} ({connection_type})"
+                if peso == -1:
+                    edge_labels[(n, adjacente)] = f"{-1} ({connection_type})" 
+                else:
+                    edge_labels[(n, adjacente)] = f"{round(peso, 2)} ({connection_type})"
 
         nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels, font_size=6, label_pos=0.5)
 
@@ -237,100 +280,112 @@ class Graph:
 
         plt.savefig(output_path, format='png')
         plt.close()
+
     
     
     
     def update_grafo(self, traveltime):
-        nodesList = self.nodes
-    
-        for node in nodesList:
-            if(node.afected == True):
-                node.updateCriticalTime(traveltime)
-                node.updatePriority()
+        for node in self.nodes:
+            node_aux: Node = self.get_node_by_name(node)
+            if node_aux is not None:
+                if node_aux.getAffected() is True:
+                    node_aux.updateCriticalTime(traveltime)
+                    node_aux.updatePriority()
+                for adjacente, w in self.graph[node]:
+                    if random.random() < 0.01:  # 1% de chance para peso infinito
+                        w = -1 # rep do infinito
+                    else:
+                        w = self.calculate_distance(node_aux.getLatitude(), node_aux.getLongitude(), adjacente.getLatitude(), adjacente.getLongitude())
 
 
-    def procura_DFS(self, start, end, path, visited, vehicle: Vehicle):
+    def procura_DFS(self, start, end, path, visited, vehicle: Vehicle):        
         path.append(start)
         visited.add(start)
-
         minimum = 0
         distance = 0
-        goalArea = self.get_node_by_name(end)
-
-        needs = goalArea.getNeeds()
+        needs = self.get_node_by_name(end).getNeeds()
 
         for need in needs:
             minimum += need.getSupplyWeightLoad()
 
         if start == end:
-
             custoT = self.calculate_cost(path)
             area = self.get_node_by_name(end)
-            area.supplyArea(vehicle, minimum, distance, goalArea.getName())
+            vehicle.updateVehicle(distance,needs, True)
+            self.finish_travel(end)
             return path, custoT
 
-        for adjacente, _ in self.graph[start]:
-            if adjacente not in visited:
+        for adjacente, custo in self.graph[start]:
+            if adjacente not in visited and self.compatibleConection(start, adjacente, vehicle) and custo !=  -1:
                 distance = self.calculate_distance(
-                    self.nodes[start].area.latitude, self.nodes[start].area.longitude,
-                    self.nodes[adjacente].area.latitude, self.nodes[adjacente].area.longitude
+                    self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
+                    self.get_node_by_name(adjacente).getLatitude(), self.get_node_by_name(adjacente).getLongitude()
+
                 )
-                
                 time = vehicle.calculateTravelTime(distance)
 
                 self.update_grafo(time)
-                
-                area = self.get_node_by_name(adjacente)
-                success = area.supplyArea(vehicle, minimum, distance, goalArea.getName()) 
-                if not success:
-                    return None
+                if vehicle.updateVehicle(distance,needs,False) is False:
+                    break
 
+                area = self.get_node_by_name(adjacente).getArea()
                 resultado = self.procura_DFS(adjacente, end, path, visited, vehicle)
-                if resultado is not None:
+                if resultado[1] is not float('inf'):
                     return resultado
-
         path.pop()
-        return None
+        return [], float('inf')
 
-    def procura_BFS(graph, start, end, direction):
+    def procura_BFS(self, start, end, vehicle): 
         visited = set()
         fila = Queue()
-        custo = 0
+
         fila.put(start)
         visited.add(start)
 
         parent = dict()
         parent[start] = None
 
+        minimum = 0
+        distance = 0
+        needs = self.get_node_by_name(end).getNeeds()
+
+        for need in needs:
+            minimum += need.getSupplyWeightLoad()
+
         path_found = False
-
-        while not fila.empty() and not path_found:
+        while not fila.empty() and path_found == False:
             nodo_atual = fila.get()
-
-            if direction == 'forward':
-                neighbors = graph.graph[nodo_atual] 
-            elif direction == 'backward':
-                neighbors = [(adjacente, peso) for adjacente, peso in graph.getNeighbours(nodo_atual) 
-                             if nodo_atual in [adj[0] for adj in graph.graph[adjacente]]]
-
             if nodo_atual == end:
                 path_found = True
-            else:
-                for (adjacente, peso) in neighbors:
-                    if adjacente not in visited:
+                area = self.get_node_by_name(end)
+                vehicle.updateVehicle(distance,needs, True)
+                self.finish_travel(end)
+            else: 
+                for (adjacente,peso) in self.graph[nodo_atual]:
+                    if adjacente not in visited and self.compatibleConection(nodo_atual, adjacente, vehicle) and peso != -1:
                         fila.put(adjacente)
                         parent[adjacente] = nodo_atual
                         visited.add(adjacente)
-
+                        distance = self.calculate_distance(
+                            self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
+                            self.get_node_by_name(adjacente).getLatitude(), self.get_node_by_name(adjacente).getLongitude()
+                        )
+                        time = vehicle.calculateTravelTime(distance)
+                        if vehicle.updateVehicle(distance,needs,False) is False:
+                            break
+                        self.update_grafo(time)
+                
+        
         path = []
+        custoT = float('inf')
         if path_found:
             path.append(end)
             while parent[end] is not None:
                 path.append(parent[end])
                 end = parent[end]
             path.reverse()
-            custo = graph.calculate_cost(path)
-        return (path, custo)
+            custoT = self.calculate_cost(path)
+        return (path,custoT)
 
 
     def getNeighbours(graph, nodo):
@@ -339,7 +394,7 @@ class Graph:
             lista.append((adjacente, peso))
         return lista
     
-    def reconstruct_path(visited, start, end):
+    def reconstruct_path(self,visited, start, end):
         path = []
         current = end 
         while current is not None:
@@ -349,16 +404,26 @@ class Graph:
         path.reverse()
         return path
 
-    def procura_custo_uniforme(self, start, end):
+    def procura_custo_uniforme(self, start, end, vehicle: Vehicle):
         priority_queue = [(0, start)] 
         visited = {start: (0, None)} 
+
+        minimum = 0
+        distance = 0
+        needs = self.get_node_by_name(end).getNeeds()
+
+        for need in needs:
+            minimum += need.getSupplyWeightLoad()
 
         while priority_queue:
             current_cost, current_node = heapq.heappop(priority_queue)
 
             if current_node == end:
                 path = self.reconstruct_path(visited, start, end)
-                return current_cost, path
+                area = self.get_node_by_name(end)
+                vehicle.updateVehicle(distance,needs, True)
+                self.finish_travel(end)
+                return path, current_cost
 
             for neighbor, cost in self.graph.get(current_node, []):
                 if cost == -1: 
@@ -366,26 +431,42 @@ class Graph:
 
                 total_cost = current_cost + cost
 
-                if neighbor not in visited or total_cost < visited[neighbor][0]:
+                if neighbor not in visited or total_cost < visited[neighbor][0] and self.compatibleConection(current_node, neighbor, vehicle) and cost != -1:
                     visited[neighbor] = (total_cost, current_node)
                     heapq.heappush(priority_queue, (total_cost, neighbor))
+                    distance = self.calculate_distance(
+                        self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
+                        self.get_node_by_name(neighbor).getLatitude(), self.get_node_by_name(neighbor).getLongitude()
+                    )
+                    time = vehicle.calculateTravelTime(distance)
+                    if vehicle.updateVehicle(distance,needs,False) is False:
+                        break
+                    self.update_grafo(time)
 
-        return float('inf'), []
+        return [], float('inf')
     
     #### informados
 
-    def greedy(graph, start, end):
+    def greedy(self, start, end, vehicle: Vehicle):
         open_list = set([start])
         closed_list = set([])
 
         parents = {}
         parents[start] = start
 
+        minimum = 0
+        distance = 0
+        needs = self.get_node_by_name(end).getNeeds()
+
+        for need in needs:
+            minimum += need.getSupplyWeightLoad()
+
         while len(open_list) > 0:
             n = None
 
             for v in open_list:
-                if n is None or graph.graph[v].getHeuristic() < graph.graph[v].getHeuristic():
+                node = self.get_node_by_name(v)
+                if n is None or node.getHeuristic() < node.getHeuristic():
                     n = v
 
             if n is None:
@@ -399,20 +480,30 @@ class Graph:
                     n = parents[n]
                 reconst_path.append(start)
                 reconst_path.reverse()
-                return (reconst_path, graph.calculate_cost(reconst_path))
+                area = self.get_node_by_name(end)
+                vehicle.updateVehicle(distance,needs, True)
+                self.finish_travel(end)
+                return (reconst_path, self.calculate_cost(reconst_path))
 
-            for (m, weight) in graph.getNeighbours(n):
-                if m not in open_list and m not in closed_list:
+            for (m, weight) in self.getNeighbours(n):
+                if m not in open_list and m not in closed_list and self.compatibleConection(n, m, vehicle) and weight != -1:
                     open_list.add(m)
                     parents[m] = n
+                    distance = self.calculate_distance(
+                        self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
+                        self.get_node_by_name(m).getLatitude(), self.get_node_by_name(m).getLongitude()
+                    )
+                    time = vehicle.calculateTravelTime(distance)
+                    if vehicle.updateVehicle(distance,needs,False) is False:
+                        break
+                    self.update_grafo(time)
 
             open_list.remove(n)
             closed_list.add(n)
 
-        print('Path does not exist!')
-        return None
+        return [], float('inf')
 
-    def procura_aStar(graph, start, end):
+    def procura_aStar(self, start, end, vehicle: Vehicle):
         open_list = {start}
         closed_list = set([])
 
@@ -422,11 +513,19 @@ class Graph:
         parents = {}
         parents[start] = start
 
+        minimum = 0
+        distance = 0
+        needs = self.get_node_by_name(end).getNeeds()
+
+        for need in needs:
+            minimum += need.getSupplyWeightLoad()
+
         while len(open_list) > 0:
             n = None
 
             for v in open_list:
-                if n is None or g[v] + graph.graph[v].getHeuristic() < g[n] + graph.graph[v].getHeuristic():
+                node = self.get_node_by_name(v)
+                if n is None or g[v] + node.getHeuristic() < g[n] + node.getHeuristic():
                     n = v
 
             if n is None:
@@ -440,13 +539,24 @@ class Graph:
                     n = parents[n]
                 reconst_path.append(start)
                 reconst_path.reverse()
-                return (reconst_path, graph.calculate_cost(reconst_path))
+                area = self.get_node_by_name(end)
+                vehicle.updateVehicle(distance,needs, True)
+                self.finish_travel(end)
+                return (reconst_path, self.calculate_cost(reconst_path))
 
-            for (m, weight) in graph.getNeighbours(n):
-                if m not in open_list and m not in closed_list:
+            for (m, weight) in self.getNeighbours(n):
+                if m not in open_list and m not in closed_list and self.compatibleConection(n, m, vehicle) and weight != -1:
                     open_list.add(m)
                     parents[m] = n
                     g[m] = g[n] + weight
+                    distance = self.calculate_distance(
+                        self.get_node_by_name(start).getLatitude(), self.get_node_by_name(start).getLongitude(),
+                        self.get_node_by_name(m).getLatitude(), self.get_node_by_name(m).getLongitude()
+                    )
+                    time = vehicle.calculateTravelTime(distance)
+                    if vehicle.updateVehicle(distance,needs,False) is False:
+                        break
+                    self.update_grafo(time)
                 else:
                     if g[m] > g[n] + weight:
                         g[m] = g[n] + weight
@@ -459,5 +569,4 @@ class Graph:
             open_list.remove(n)
             closed_list.add(n)
 
-        print('Path does not exist!')
-        return None
+        return [], float('inf')
