@@ -1,5 +1,5 @@
 Name,MaxCapacity,Autonomy,AverageConsumption,TravelTime,Type
-Camião,20000,1200,0.35,3,terrestre
+Camião,20000,1200,0.35,3,aereo
 Barco,500000,8000,0.6,3,aquatico
 Drone,15,100,0.02,0.4,aereo
 Carro,1500,600,0.07,0.7,terrestre
