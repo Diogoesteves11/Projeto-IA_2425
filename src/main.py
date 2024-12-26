@@ -58,6 +58,10 @@ def main():
                 elif algo_choice == "6":
                     print("Executando A*...")
                     search(g_copy, start, vehicles_list, 5)
+                    
+                elif algo_choice == "7":
+                    print("Executando SMA*...")
+                    search(g_copy, start, vehicles_list, 6)
                 
                 else:
                     print("Opção inválida. Tente novamente.")

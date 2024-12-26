@@ -646,3 +646,109 @@ class Graph:
                     open_list.add(m)
 
         return [], float('inf')
+
+    def simplified_ma_star(self, start, end, vehicle: Vehicle, memory_limit: int):
+        """
+        Simplified Memory-Bounded A* Search implementation with empty sequence protection
+        """
+        # Initialize the open and closed lists
+        open_list = {start}
+        closed_list = set()
+        
+        # Dictionary to store g scores (cost from start to node)
+        g = {start: 0}
+        # Dictionary to store f scores (g score + heuristic)
+        f = {start: self.get_node_by_name(start).getHeuristic()}
+        # Dictionary to store parent nodes
+        parents = {start: None}
+        
+        # Get needs for the destination
+        needs = self.get_node_by_name(end).getNeeds()
+        
+        while open_list:
+            # If memory limit is exceeded, remove the worst node from open list
+            if len(open_list) + len(closed_list) > memory_limit:
+                # Protect against empty open_list
+                if not open_list:
+                    return [], float('inf')
+                    
+                worst_node = max(open_list, key=lambda x: f[x])
+                open_list.remove(worst_node)
+                del g[worst_node]
+                del f[worst_node]
+                del parents[worst_node]
+            
+            # Protect against empty open_list
+            if not open_list:
+                return [], float('inf')
+                
+            # Find node with minimum f score
+            current = min(open_list, key=lambda x: f[x])
+            
+            # If goal is reached
+            if current == end:
+                path = []
+                cost = g[current]
+                while current:
+                    path.append(current)
+                    current = parents[current]
+                path.reverse()
+                
+                # Update vehicle state and finish travel
+                distance = self.calculate_cost(path)
+                refuel = self.get_node_by_name(end).getRefuel()
+                vehicle.updateVehicle(distance, needs, True, refuel)
+                self.finish_travel(end)
+                return path, cost
+            
+            # Move current node from open to closed list
+            open_list.remove(current)
+            closed_list.add(current)
+            
+            # Get neighbors using getGraph instead of getNeighbours if needed
+            neighbors = self.graph.get(current, [])
+            
+            # Check all neighbors
+            for neighbor, weight in neighbors:
+                # Skip if connection is not compatible or weight is infinite
+                if not self.compatibleConection(current, neighbor, vehicle) or weight == -1:
+                    continue
+                
+                # Calculate tentative g score
+                tentative_g = g[current] + weight
+                
+                # If neighbor is in closed list and we didn't find a better path, skip
+                if neighbor in closed_list and tentative_g >= g.get(neighbor, float('inf')):
+                    continue
+                
+                # If we found a better path or neighbor is not in open list
+                if neighbor not in open_list or tentative_g < g.get(neighbor, float('inf')):
+                    try:
+                        distance = self.calculate_distance(
+                            self.get_node_by_name(current).getLatitude(),
+                            self.get_node_by_name(current).getLongitude(),
+                            self.get_node_by_name(neighbor).getLatitude(),
+                            self.get_node_by_name(neighbor).getLongitude()
+                        )
+                        
+                        time = vehicle.calculateTravelTime(distance)
+                        refuel = self.get_node_by_name(neighbor).getRefuel()
+                        
+                        if not vehicle.updateVehicle(distance, needs, False, refuel):
+                            continue
+                            
+                        self.update_grafo(time)
+                        
+                        # Update node information
+                        parents[neighbor] = current
+                        g[neighbor] = tentative_g
+                        f[neighbor] = g[neighbor] + self.get_node_by_name(neighbor).getHeuristic()
+                        
+                        # Add to open list
+                        open_list.add(neighbor)
+                    except Exception as e:
+                        print(f"Error processing neighbor {neighbor}: {str(e)}")
+                        continue
+        
+        # No path found
+        return [], float('inf')
