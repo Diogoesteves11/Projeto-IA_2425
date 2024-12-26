@@ -40,6 +40,7 @@ class Graph:
         while random_node.getAffected() is not False:
             random_node = random.choice(nodes)
         node = random_node.getName()
+        print(node)
         return node
     
     def calculate_distance(self,lat1, lon1, lat2, lon2):
@@ -162,7 +163,7 @@ class Graph:
         node.setAffected(False)
         area = node.getArea()
         area.setPriority(0)
-        print('Supplied: ' + end + '|| '+ str(node.getAffected()))
+        #print('Supplied: ' + end + '|| '+ str(node.getAffected()))
 
     def compatibleConection(self, start, end, vehicle: Vehicle):
         con = self.conections.get((start, end))
@@ -285,11 +286,8 @@ class Graph:
         plt.axis('off')
         plt.tight_layout()
 
-        plt.savefig(output_path, format='png')
+        plt.show()
         plt.close()
-
-    
-    
     
     def update_grafo(self, traveltime):
         for node in self.nodes:
@@ -460,7 +458,77 @@ class Graph:
 
         return [], float('inf')
     
-    #### informados
+    def depth_limited_search(self, start, goal, depth_limit, vehicle: Vehicle):
+        def dls_recursive(current, goal, depth, visited, path, vehicle):
+            if depth < 0:
+                return [], float('inf')
+            
+            path.append(current)
+            visited.add(current)
+            
+            # Check if goal is reached
+            if current == goal:
+                custoT = self.calculate_cost(path)
+                area = self.get_node_by_name(goal)
+                refuel = area.getRefuel()
+                
+                # Get the distance for vehicle update
+                if len(path) > 1:
+                    distance = self.calculate_distance(
+                        self.get_node_by_name(path[-2]).getLatitude(),
+                        self.get_node_by_name(path[-2]).getLongitude(),
+                        self.get_node_by_name(current).getLatitude(),
+                        self.get_node_by_name(current).getLongitude()
+                    )
+                else:
+                    distance = 0
+                    
+                needs = self.get_node_by_name(goal).getNeeds()
+                vehicle.updateVehicle(distance, needs, True, refuel)
+                self.finish_travel(goal)
+                return path, custoT
+            
+            # Explore neighbors within depth limit
+            for adjacente, custo in self.graph[current]:
+                if (adjacente not in visited and 
+                    self.compatibleConection(current, adjacente, vehicle) and 
+                    custo != -1):
+                    
+                    # Calculate distance and update vehicle state
+                    distance = self.calculate_distance(
+                        self.get_node_by_name(current).getLatitude(),
+                        self.get_node_by_name(current).getLongitude(),
+                        self.get_node_by_name(adjacente).getLatitude(),
+                        self.get_node_by_name(adjacente).getLongitude()
+                    )
+                    
+                    time = vehicle.calculateTravelTime(distance)
+                    refuel = self.get_node_by_name(adjacente).getRefuel()
+                    self.update_grafo(time)
+                    
+                    needs = self.get_node_by_name(goal).getNeeds()
+                    if vehicle.updateVehicle(distance, needs, False, refuel) is False:
+                        continue
+                    
+                    result_path, result_cost = dls_recursive(adjacente, goal, depth - 1, visited.copy(), path.copy(), vehicle)
+                    if result_cost != float('inf'):
+                        return result_path, result_cost
+            
+            return [], float('inf')
+        
+        # Initialize empty path and visited set
+        initial_path = []
+        initial_visited = set()
+        
+        return dls_recursive(start, goal, depth_limit, initial_visited, initial_path, vehicle)
+
+    def IDS(self, start, goal, max_depth, vehicle: Vehicle):
+        for depth in range(max_depth):
+            path, cost = self.depth_limited_search(start, goal, depth, vehicle)
+            if cost != float('inf'):
+                return path, cost
+        
+        return [], float('inf')
 
     def greedy(self, start, end, vehicle: Vehicle):
         open_list = set([start])
