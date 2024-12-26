@@ -383,7 +383,7 @@ class Graph:
                         time = vehicle.calculateTravelTime(distance)
                         refuel = self.get_node_by_name(adjacente).getRefuel()
                         self.update_grafo(time)
-                        if vehicle.updateVehicle(distance,needs,False) is False:
+                        if vehicle.updateVehicle(distance,needs,False, refuel) is False:
                             break
                         self.update_grafo(time)
                 
