@@ -6,12 +6,15 @@ from Algorithms.algs_handler import *
 import time
 import copy
 
+
 def main():
     g = Graph()
 
+    # Parsing dos dados e criação do grafo
     supplies_data = g.parse_supplies()
     g.createGraph(supplies_data)
         
+    # Parsing dos veículos
     vehicles = Vehicle.parse_csv_to_vehicles()
     vehicles_list = list(vehicles.values()) 
     
@@ -24,7 +27,7 @@ def main():
             g.draw()
             
         elif choice == "2":
-            start = input("Digita o nome do nó inicial: ")
+            start = input("Digite o nome do nó inicial: ")
             
             while True:
                 display_algorithm_menu()
@@ -33,8 +36,10 @@ def main():
                 if algo_choice == "0":
                     break
                 
+                # Criar uma cópia independente do grafo
                 g_copy = copy.deepcopy(g)
                 
+                # Chamadas para a função `search` com cópias do grafo
                 if algo_choice == "1":
                     print("Executando a Busca em Profundidade...")
                     search(g_copy, start, vehicles_list, 0)
@@ -66,8 +71,7 @@ def main():
                 else:
                     print("Opção inválida. Tente novamente.")
                 
-                g = g_copy
-                time.sleep(2)   
+                time.sleep(2)
             
         elif choice == "0":
             print("Saindo do programa...")
@@ -80,3 +84,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

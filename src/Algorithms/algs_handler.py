@@ -111,7 +111,7 @@ def search(g: Graph, base, vehicles, flag):
     max_destinos = destinos_por_veiculo[veiculo_max_destinos]
     print(f"\nVeículo mais eficiente: {veiculo_max_destinos.getName()} ({max_destinos} destinos)")
     
-    time.sleep(500)
+    time.sleep(10)
     return veiculo_max_destinos, max_destinos
     
     
