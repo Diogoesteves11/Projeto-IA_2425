@@ -36,12 +36,12 @@ def search(g: Graph, base, vehicles, flag):
         path_aux = []
         start = base
         v.supplyVehicle(queue)
-        print(f"\nVeículo: {v.getName()}")
+        #print(f"\nVeículo: {v.getName()}")
         
         while queue:
             end = queue[0]
             goal = end.getName()
-            print(f"Destino atual: {goal}")
+            #print(f"Destino atual: {goal}")
             
             # Executar algoritmo selecionado
             if flag == 0:
@@ -95,9 +95,9 @@ def search(g: Graph, base, vehicles, flag):
     
     # Imprimir relatório detalhado
     print("\n====== Relatório de Execução ======")
-    print(f"\nTempo total de execução: {execution_time:.2f} segundos")
-    print(f"Uso de memória atual: {current_memory / 10**6:.2f} MB")
-    print(f"Pico de memória: {peak_memory / 10**6:.2f} MB")
+    print(f"\nTempo total de execução: {execution_time:.4f} segundos")
+    print(f"Uso de memória atual: {current_memory / 10**6:.4f} MB")
+    print(f"Pico de memória: {peak_memory / 10**6:.4f} MB")
     
     print("\nResumo por veículo:")
     for v in vehicles:
@@ -111,7 +111,7 @@ def search(g: Graph, base, vehicles, flag):
     max_destinos = destinos_por_veiculo[veiculo_max_destinos]
     print(f"\nVeículo mais eficiente: {veiculo_max_destinos.getName()} ({max_destinos} destinos)")
     
-    time.sleep(10)
+    time.sleep(30)
     return veiculo_max_destinos, max_destinos
     
     
